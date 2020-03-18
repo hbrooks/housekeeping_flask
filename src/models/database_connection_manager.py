@@ -13,9 +13,9 @@ class DatabaseConnectionManager:
 
     def __init__(self, connection_details):
         
-        engine = create_engine(DatabaseConnectionManager.get_connection_string('root', 'flamingo', 'mysql_relational_database', '3306', 'distilr_news'))
+        self.engine = create_engine(DatabaseConnectionManager.get_connection_string(connection_details))
 
-        session_maker = sessionmaker(bind=engine)
+        session_maker = sessionmaker(bind=self.engine)
 
         def _get_session():
             return flask_scoped_session(session_maker, current_app)
@@ -26,7 +26,14 @@ class DatabaseConnectionManager:
             session.execute('select 1;')
         self.validate_connection = _validate_postgres_distilr_api_flask_internal_connection
 
+    def get_engine(self):
+        return self.engine
 
     @staticmethod
-    def get_connection_string(db_user, db_pwd, db_host, db_port, db_name):
-        return f'mysql+pymysql://{db_user}:{db_pwd}@{db_host}:{db_port}/{db_name}'
+    def get_connection_string(connection_details):
+        user = connection_details['MYSQL_USER']
+        password = connection_details['MYSQL_ROOT_PASSWORD']
+        host_name = connection_details['MYSQL_HOST']
+        port = connection_details['MYSQL_PORT']
+        db_name = connection_details['MYSQL_DB_NAME']
+        return f'mysql+pymysql://{user}:{password}@{host_name}:{port}/{db_name}'

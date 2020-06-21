@@ -12,6 +12,9 @@ class DatabaseConnectionManager:
     # TODO: Extend something like ExternalDependencyConnection that mandates that validate_connection() and self.cache exists.
 
     def __init__(self, connection_details):
+        """
+        TODO: Change constructor to provide 5 fields explicity, not a dictionary.
+        """
         
         self.engine = create_engine(DatabaseConnectionManager.get_connection_string(connection_details))
 

@@ -16,12 +16,15 @@ from sqlalchemy import create_engine
 from .exceptions import HouseKeepingBaseException
 
 LOG = logging.getLogger(__name__)
-database_connection_manager = None
+database_connection_manager = None # Not needed.
 
+
+def get_env_var(env_var):
+    return os.environ[env_var]
 
 def create_dict_from_env_vars(env_vars):
     return {
-        field_name: os.environ[field_name] for field_name in env_vars
+        field_name: get_env_var(field_name) for field_name in env_vars
     }
 
 
@@ -33,18 +36,13 @@ class HouseKeepingApiServer:
             blueprints,
             build_app_context_function=None,
             before_request_function=None,
-            health_check_function=None,
-            include_db_clean_endpoint=True):
+            health_check_function=None):
         self.models = models
         self.blueprints = blueprints
         self.build_app_context_function = build_app_context_function
         self.before_request_function = before_request_function
-        self.health_check_function = health_check_function if health_check_function != None else self._get_default_heathCheck_function()
-        self.include_db_clean_endpoint = include_db_clean_endpoint
+        self.health_check_function = self._DEFAULT_HEALTH_CHECK_FUNCTION if health_check_function is None else health_check_function
 
-    def _get_default_heathCheck_function(self):
-        def _DEFAULT_HEALTH_CHECK_FUNCITON(_):
-            return '', 200
 
     def build_flask_app(self):
 
@@ -57,28 +55,15 @@ class HouseKeepingApiServer:
 
         if self.build_app_context_function:
             with app.app_context():
-                self.build_app_context_function(self)
+                self.build_app_context_function()
 
         if self.before_request_function:
             @app.before_request
             def before_request_function_():
-                self.before_request_function(self)
+                self.before_request_function()
 
-        internal_blueprint = self._build_internal_routes(
-            self.health_check_function,
-            self.include_db_clean_endpoint
-        )
+        internal_blueprint = self._build_internal_routes(self.health_check_function)
         self.blueprints.add(internal_blueprint)
-
-        # if self.health_check_function:
-        #     @app.route(self.HEALTH_CHECK_URI, methods=('GET',))
-        #     def health_check_function_():
-        #         return self.health_check_function(self)
-
-        # else:
-        #     @app.route(self.HEALTH_CHECK_URI, methods=('GET',))
-        #     def DEAFULT_HEALTH_CHECK_FUNCITON():
-        #         return '', 200
 
         @app.errorhandler(HouseKeepingBaseException)
         def handle_housekeeping_exceptions(e):
@@ -104,41 +89,22 @@ class HouseKeepingApiServer:
 
         return app
 
-    def _build_internal_routes(
-        self,
-            health_check_function,
-            include_db_clean_endpoint
-        ):
+    def _build_internal_routes(self, health_check_function):
         
         internal_routes_blueprint = Blueprint(
             'internal',
             __name__,
             url_prefix='/internal')
 
-        if include_db_clean_endpoint:
-            @internal_routes_blueprint.route("/db/clean", methods=('POST',))
-            def clean_database():
-                TABLES_TO_TRUNCATE = { # TODO: Customize this for each service.
-                    'users',
-                    'events',
-                    'user_events',
-                    'user_activities'
-                }
-                db = g.session()
-                for table in TABLES_TO_TRUNCATE:
-                    db.execute('truncate {};'.format(table))
-                db.commit()
-                
-                return '', 200
-
         @internal_routes_blueprint.route('/healthCheck', methods=('GET',))
         def health_check_function_():
-            return health_check_function(self)
+            return health_check_function()
 
         return internal_routes_blueprint
-
     
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
         logging.getLogger('werkzeug').setLevel(logging.INFO)
 
+    def _DEFAULT_HEALTH_CHECK_FUNCTION(self):
+        return '', 200

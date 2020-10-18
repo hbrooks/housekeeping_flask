@@ -1,6 +1,6 @@
 import logging
 
-from api_orch.exceptions import HouseKeepingBaseException
+from ..exceptions import HouseKeepingBaseException
 
 
 LOG = logging.getLogger(__name__)

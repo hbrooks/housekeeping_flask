@@ -8,10 +8,6 @@ from flask_cors import CORS
 from flask import current_app
 from flask import g
 from flask import Blueprint
-from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy_session import flask_scoped_session
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
 
 from .exceptions import HouseKeepingBaseException
 

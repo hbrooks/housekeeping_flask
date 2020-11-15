@@ -1,0 +1,1 @@
+Contains code required to spawn a HouseKeeping microservice using Flask.  For an example of how this code is used, see https://github.com/hbrooks/housekeeping_flask_template.

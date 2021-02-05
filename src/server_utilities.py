@@ -3,7 +3,6 @@ import os
 import logging
 
 from flask import Flask
-from flask_cors import CORS
 
 from flask import current_app
 from flask import g
@@ -12,7 +11,6 @@ from flask import Blueprint
 from .exceptions import HouseKeepingBaseException
 
 LOG = logging.getLogger(__name__)
-database_connection_manager = None # Not needed.
 
 
 def get_env_var(env_var):
@@ -46,7 +44,6 @@ class HouseKeepingApiServer:
 
         app = Flask(__name__)
 
-        CORS(app)
         self._configure_logging()
 
         if self.build_app_context_function:

@@ -15,8 +15,9 @@ class DatabaseConnectionManager:
         """
         TODO: Change constructor to provide 5 fields explicity, not a dictionary.
         """
-        
-        self.engine = create_engine(DatabaseConnectionManager.get_connection_string(connection_details))
+
+        self.engine = create_engine(
+            DatabaseConnectionManager.get_connection_string(connection_details))
 
         session_maker = sessionmaker(bind=self.engine)
 

@@ -16,9 +16,9 @@ class CacheConnectionManager:
             host=host_name,
             port=port,
         )
-    
+
     def get_connection(self):
         return self.cache
-    
+
     def validate_connection(self):
         self.get_connection().ping()

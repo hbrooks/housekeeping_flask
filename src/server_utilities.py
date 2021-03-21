@@ -12,11 +12,12 @@ from flask import Blueprint
 from .exceptions import HouseKeepingBaseException
 
 LOG = logging.getLogger(__name__)
-database_connection_manager = None # Not needed.
+database_connection_manager = None  # Not needed.
 
 
 def get_env_var(env_var):
     return os.environ[env_var]
+
 
 def create_dict_from_env_vars(env_vars):
     return {
@@ -39,7 +40,6 @@ class HouseKeepingApiServer:
         self.before_request_function = before_request_function
         self.health_check_function = self._DEFAULT_HEALTH_CHECK_FUNCTION if health_check_function is None else health_check_function
 
-
     def build_flask_app(self):
 
         LOG.info("Starting up...")
@@ -58,7 +58,8 @@ class HouseKeepingApiServer:
             def before_request_function_():
                 self.before_request_function()
 
-        internal_blueprint = self._build_internal_routes(self.health_check_function)
+        internal_blueprint = self._build_internal_routes(
+            self.health_check_function)
         self.blueprints.add(internal_blueprint)
 
         @app.errorhandler(HouseKeepingBaseException)
@@ -86,7 +87,7 @@ class HouseKeepingApiServer:
         return app
 
     def _build_internal_routes(self, health_check_function):
-        
+
         internal_routes_blueprint = Blueprint(
             'internal',
             __name__,
@@ -97,7 +98,7 @@ class HouseKeepingApiServer:
             return health_check_function()
 
         return internal_routes_blueprint
-    
+
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
         logging.getLogger('werkzeug').setLevel(logging.INFO)

@@ -1,5 +1,6 @@
 import boto3
 
+
 class DynamoDbDatabaseManager:
 
     ALL_GAME_ATTRIBUTES = (
@@ -37,5 +38,4 @@ class DynamoDbDatabaseManager:
             AttributesToGet=self.ALL_GAME_ATTRIBUTES,
             ConsistentRead=True,
         )['Item']
-        return entry 
-    
+        return entry
